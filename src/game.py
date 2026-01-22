@@ -35,6 +35,9 @@ class Game:
         self.high_score = self._load_high_score()
 
         self.state: str = "title"  # title | playing | gameover
+        self.lives = 3 # lives
+        self.p_name = "Mahran"
+        self.level = 3 # level: number of enemies FOR NOW
         self._reset_run()
 
     def _load_high_score(self) -> int:
@@ -53,7 +56,8 @@ class Game:
         )
 
     def _reset_run(self) -> None:
-        self.player = pygame.Rect(self.w // 2 - 16, self.h // 2 - 16, 32, 32)
+        # set player position, reuse in case player has remaining lives in Update method if collision happens
+        self.player = pygame.Rect(self.w // 2 - 16, self.h // 2 - 16, 32, 32) 
         self.player_v = pygame.Vector2(0, 0)
 
         self.score = 0
@@ -61,7 +65,7 @@ class Game:
 
         self.enemy_rects: list[pygame.Rect] = []
         self.enemy_vs: list[pygame.Vector2] = []
-        for _ in range(3):
+        for _ in range(self.level):# # of enemies
             r = pygame.Rect(random.randrange(40, self.w - 40), random.randrange(80, self.h - 40), 36, 36)
             v = pygame.Vector2(random.choice([-1, 1]) * 220, random.choice([-1, 1]) * 180)
             self.enemy_rects.append(r)
@@ -135,12 +139,16 @@ class Game:
             self.score += 1
             self.coin = self._spawn_coin()
 
+
         # Collision: player with enemies.
+        #collidelist:build it, check if rectangles collide returns -1 if non. 
+        #            if collided return index of first rect collided with
         if self.player.collidelist(self.enemy_rects) != -1:
             self.state = "gameover"
             if self.score > self.high_score:
                 self.high_score = self.score
                 self._save_high_score()
+
 
     def draw(self) -> None:
         self.screen.fill(COLORS.bg)
@@ -153,10 +161,15 @@ class Game:
             self._draw_gameover()
 
     def _draw_hud(self) -> None:
+        '''
+        Docstring for _draw_hud
+        
+        :param self: Description
+        '''
         panel = pygame.Rect(12, 12, 420, 40)
         pygame.draw.rect(self.screen, COLORS.panel, panel, border_radius=10)
 
-        text = f"Score: {self.score}    High: {self.high_score}"
+        text = f"Player: {self.p_name}    Score: {self.score}    High: {self.high_score}    Lives: {self.lives}"
         surf = self.font.render(text, True, COLORS.text)
         self.screen.blit(surf, (panel.x + 12, panel.y + 12))
 
