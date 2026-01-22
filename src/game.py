@@ -31,7 +31,7 @@ class Game:
         self.font = pygame.font.SysFont(None, 24)
         self.big_font = pygame.font.SysFont(None, 48)
 
-        self.save_path = Path(__file__).resolve().parent.parent / "save.json"
+        self.save_path = Path(__file__).resolve().parent.parent / "data" /"save.json"
         self.high_score = self._load_high_score()
 
         self.state: str = "title"  # title | playing | gameover

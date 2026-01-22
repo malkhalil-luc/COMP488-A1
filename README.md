@@ -1,8 +1,9 @@
-# Intro Arcade (Week 1 in-class build)
+# Assignment 1
+CodeBase: [text](https://gitlab.com/csteach323-488/source/-/tree/master/week1/examples/01-intro-arcade)
 
-A simple first-week game to introduce Python + Pygame fundamentals.
+Add a Menu and "3 lives" features to the game 
 
-## Learning goals
+## 
 - Pygame setup: window, clock, main loop
 - Events + input handling
 - Game state: title → playing → game over
@@ -16,6 +17,7 @@ A simple first-week game to introduce Python + Pygame fundamentals.
 python -m pip install pygame
 python main.py
 ```
+## Menu
 
 ## Controls
 - Arrow keys / WASD: move
