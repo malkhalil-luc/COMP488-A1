@@ -1,6 +1,6 @@
 # Assignment 1
 
-Make changes to theCodeBase: [text](https://gitlab.com/csteach323-488/source/-/tree/master/week1/examples/01-intro-arcade)
+Make changes to theCodeBase: [Week1](https://gitlab.com/csteach323-488/source/-/tree/master/week1/examples/01-intro-arcade)
 
 
 ## 
