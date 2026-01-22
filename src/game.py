@@ -35,9 +35,13 @@ class Game:
         self.high_score = self._load_high_score()
 
         self.state: str = "title"  # title | playing | gameover
+
+        self.p_name = "COMP488-Mahran"
         self.lives = 3 # lives
-        self.p_name = "Mahran"
         self.level = 3 # level: number of enemies FOR NOW
+        self.pause_state = None # Lost_life_pause, player_pause
+
+
         self._reset_run()
 
     def _load_high_score(self) -> int:
@@ -78,17 +82,34 @@ class Game:
         return pygame.Rect(random.randrange(20, self.w - 20), random.randrange(90, self.h - 20), 18, 18)
 
     def handle_event(self, event: pygame.event.Event) -> None:
+        if event.type == pygame.QUIT:
+            pygame.quit()
+        
         if event.type == pygame.KEYDOWN:
+            if self.pause_state == "Lost_life_Pause":
+                if event.key == pygame.K_ESCAPE:
+                    pygame.event.post(pygame.event.Event(pygame.QUIT))
+                elif event.key == pygame.K_RETURN:
+                    self.pause_state= None
+                    # reset enemies and coin
+                    for i, r in enumerate(self.enemy_rects):
+                        r.x = random.randrange(40, self.w - 40)
+                        r.y = random.randrange(80, self.h - 40)
+                        self.enemy_vs[i] = pygame.Vector2(random.choice([-1, 1]) * 220,random.choice([-1, 1]) * 180)
+                    self.coin = self._spawn_coin()
+                return
             if event.key == pygame.K_ESCAPE:
                 pygame.event.post(pygame.event.Event(pygame.QUIT))
-
-            if event.key == pygame.K_RETURN:
+            elif event.key == pygame.K_RETURN: 
                 if self.state in ("title", "gameover"):
+                    self.lives = 3
                     self._reset_run()
                     self.state = "playing"
 
     def update(self, dt: float) -> None:
         if self.state != "playing":
+            return
+        if self.pause_state == "Lost_life_Pause":
             return
 
         self.alive_time += dt
@@ -143,12 +164,20 @@ class Game:
         # Collision: player with enemies.
         #collidelist:build it, check if rectangles collide returns -1 if non. 
         #            if collided return index of first rect collided with
+        
         if self.player.collidelist(self.enemy_rects) != -1:
-            self.state = "gameover"
-            if self.score > self.high_score:
-                self.high_score = self.score
-                self._save_high_score()
-
+            if self.lives >1: # sub lives by 1 
+                self.lives-=1
+                self.pause_state ="Lost_life_Pause"
+                #reset players positions
+                self.player.center =(self.w // 2 , self.h // 2 ) #pygame.Rect(self.w // 2 , self.h // 2 ) 
+                self.player_v = pygame.Vector2(0, 0)
+                
+            else:
+                self.state="gameover"
+                if self.score > self.high_score:
+                    self.high_score = self.score
+                    self._save_high_score()
 
     def draw(self) -> None:
         self.screen.fill(COLORS.bg)
@@ -161,12 +190,8 @@ class Game:
             self._draw_gameover()
 
     def _draw_hud(self) -> None:
-        '''
-        Docstring for _draw_hud
         
-        :param self: Description
-        '''
-        panel = pygame.Rect(12, 12, 420, 40)
+        panel = pygame.Rect(12, 12, 600, 40)
         pygame.draw.rect(self.screen, COLORS.panel, panel, border_radius=10)
 
         text = f"Player: {self.p_name}    Score: {self.score}    High: {self.high_score}    Lives: {self.lives}"
@@ -174,6 +199,9 @@ class Game:
         self.screen.blit(surf, (panel.x + 12, panel.y + 12))
 
     def _draw_playing(self) -> None:
+        if self.pause_state == "Lost_life_Pause":
+            msg = self.big_font.render("Life lost! Enter to continue, Esc to quit", True, (255, 100, 100))
+            self.screen.blit(msg, (self.w/2 - msg.get_width()/2, self.h/2 - 50))
         self._draw_hud()
 
         pygame.draw.rect(self.screen, COLORS.coin, self.coin, border_radius=7)
